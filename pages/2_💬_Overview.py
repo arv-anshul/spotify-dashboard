@@ -17,8 +17,6 @@ st.set_page_config('Spotify Data Analysis', ':music:', 'wide')
 # Listening history
 df = stream_df()
 
-# --- Functions ---
-
 
 def overall_analysis(df_group):
     col1, col2, col3 = st.columns(3)
@@ -40,21 +38,40 @@ def one_on_analysis(sf: pd.DataFrame, exp_text: str):
             res = sf['trackName'].value_counts()
             st.metric('Most times listend song', str(res.index[0]))
             st.bar_chart(res[:10])
+
+            # Display the DataFrame with trackName and artistName columns
+            display_df = (sf[sf['trackName'].isin(res[:12].index)]
+                          [['trackName', 'artistName']]
+                          .drop_duplicates()
+                          .reset_index(drop=True))
+            st.table(display_df[:12])
         with col2:
             res = sf['artistName'].value_counts()
             st.metric('Most times Listend artist', str(res.index[0]))
             st.bar_chart(res[:10])
+
+            # Display the DataFrame with trackName and artistName columns
+            display_df = (sf[sf['artistName'].isin(res[:12].index)]
+                          [['trackName', 'artistName']]
+                          .drop_duplicates()
+                          .reset_index(drop=True))
+            st.dataframe(display_df, height=460, use_container_width=True)
         with col3:
             res = sf.groupby('trackName')['msPlayed'].sum()/60000
             st.metric('Minutes listend', round(res.sum()))
             st.bar_chart((res.sort_values(ascending=False)[:10]).round())
+            # Display the DataFrame
+            st.table((res
+                      .sort_values(ascending=False)[:12]
+                      .reset_index()
+                      .rename(columns={'msPlayed': 'minPlayed'})))
 
 
 # --- --- Sidebar --- ---
 with st.sidebar:
     st.title('Spotify Data Analysis')
     overall_analysis_btn = st.radio('Select Analysis',
-                                    options=['YoY', 'MoM', 'As DF'])
+                                    options=['YoY', 'MoM'])
 
 
 # --- Hero page ---
@@ -101,17 +118,5 @@ elif overall_analysis_btn == 'MoM':
             (df['year'] == int(year_selected))]
 
     # Summary of month - expander
-    one_on_analysis(sf, f'Summary of {month_selected} month')
-
-
-# --- Summury DataFrame ---
-elif overall_analysis_btn == 'As DF':
-    xx = (df.groupby('month')
-            .agg(count=('trackName', 'value_counts'))
-            .groupby('month').head()
-            .reset_index())
-    st.write(xx)
-
-    st.markdown('''
-                ### This had happend already as graph repersent the `Top10` in all fields. So no need to do it again.
-                ''')
+    one_on_analysis(sf,
+                    f'Summary of **{month_selected} {year_selected}** month')

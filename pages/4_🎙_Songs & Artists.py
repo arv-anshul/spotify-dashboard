@@ -6,7 +6,7 @@ A streamlit web app which accepts `spotify` provided data.
 # --- imports ---
 from matplotlib import pyplot as plt
 import streamlit as st
-import pandas as pd
+import numpy as np
 
 from manage_data_file import stream_df
 
@@ -85,3 +85,7 @@ elif individual_analysis_btn == 'Artists':
                       autopct=r'%1.0f%%')
              )
             st.pyplot(fig)
+
+    display_df = (df.query('artistName==@artist')
+                  .pivot_table('trackName', 'month', 'year', 'value_counts', fill_value=0))
+    st.dataframe(display_df, use_container_width=True)

@@ -22,21 +22,26 @@ streamlit run 1_🗒️_README.py
 .
 ├── 1_🗒️_README.py
 ├── README.md
-├── __pycache__
-│   └── analysis.cpython-311.pyc
-├── __rough__.ipynb
-├── analysis.py
+├── __init__.py
 ├── data_files
-│   ├── Playlist1.json
-│   ├── Playlist2.json
+│   ├── AllPlaylists.json
+│   ├── ListeningHistory.json
+│   └── unorganized_data
+│       ├── Playlist1.json
+│       ├── Playlist2.json
+│       ├── StreamingHistory1-0.json
+│       ├── StreamingHistory1-1.json
+│       ├── StreamingHistory2-0.json
+│       └── StreamingHistory2-1.json
+├── manage_data_file.py
 └── pages
     ├── 2_💬_Overview.py
     ├── 3_🗂️_Playlist.py
-    └── 4_🎙_Artist.py
+    └── 4_🎙_Songs & Artists.py
 ```
 
-3. Did some EDA on `StreamingHistory*.json` files to get some `MoM` and `YoY` insights.
-4. On `Playlist*.json` files:
+3. Did some EDA on `ListeningHistory.json` files to get some `MoM` and `YoY` insights.
+4. On `AllPlaylists.json` files:
    1. Import the file with `pd.read_json()`.
    2. Normalize it with `pd.normalize_json(data, record_path, record_prefix, meta, meta_prefix)`.
    3. Then drop some blank columns.

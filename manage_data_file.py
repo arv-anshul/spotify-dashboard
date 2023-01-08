@@ -71,6 +71,10 @@ def stream_df() -> pd.DataFrame:
     # Modifications
     df['endTime'] = pd.to_datetime(df['endTime'])
 
+    # Drop 2023 rows
+    drop_index = df.query('year==2023').index
+    df.drop(index=drop_index, inplace=True)
+
     return df
 
 

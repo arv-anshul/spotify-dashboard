@@ -5,5 +5,5 @@ __pycache__/
 
 # Ignore Directory files
 __rough__.*
-others/
+data_files/others/
 YourLibrary*
