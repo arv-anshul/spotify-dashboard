@@ -44,7 +44,7 @@ def one_on_analysis(sf: pd.DataFrame, exp_text: str):
                           [['trackName', 'artistName']]
                           .drop_duplicates()
                           .reset_index(drop=True))
-            st.table(display_df[:12])
+            st.table(display_df[:12].sort_values(by='trackName'))
         with col2:
             res = sf['artistName'].value_counts()
             st.metric('Most times Listend artist', str(res.index[0]))

@@ -1,7 +1,7 @@
 import streamlit as st
 
 # --- page config ---
-st.set_page_config('README.md', '🗒️', 'wide')
+st.set_page_config('README', '🗒️', 'wide')
 
 st.markdown(
     '## :blue[Made By] [:red[Anshul Raj Verma]](https://github.com/arv-anshul)')

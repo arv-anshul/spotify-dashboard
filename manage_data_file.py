@@ -71,6 +71,9 @@ def stream_df() -> pd.DataFrame:
     # Modifications
     df['endTime'] = pd.to_datetime(df['endTime'])
 
+    # Removing duplicate rows
+    df.drop_duplicates(inplace=True)
+
     # Drop 2023 rows
     drop_index = df.query('year==2023').index
     df.drop(index=drop_index, inplace=True)
@@ -119,8 +122,15 @@ def playlist_df() -> pd.DataFrame:
         'pl_name': 'playlistName'
     }, inplace=True)
 
+    # Replacing similar data
+    playlist_df['playlistName'] = playlist_df['playlistName'].str.replace(
+        r'Yeah! Beat$', 'Yeah! Mode', regex=True)
+
     # Datetime column
     playlist_df['addedDate'] = pd.to_datetime(playlist_df['addedDate'])
+
+    # Removing duplicate rows
+    playlist_df.drop_duplicates(inplace=True)
 
     return playlist_df
 

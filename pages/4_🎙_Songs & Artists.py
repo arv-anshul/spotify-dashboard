@@ -12,7 +12,7 @@ from manage_data_file import stream_df
 
 
 # --- Page config ---
-st.set_page_config('Spotify Data Analysis', '🎙', 'wide')
+st.set_page_config('Songs & Artists Analysis', '🎙', 'wide')
 
 
 # --- import files ---

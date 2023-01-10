@@ -1,54 +1,28 @@
 """ Analysis on Spotify playlist data. """
+from typing import Literal
 import streamlit as st
-import pandas as pd
+from matplotlib import pyplot as plt
 
+from manage_data_file import playlist_df, joined_df
+
+
+# --- Page config ---
+st.set_page_config('Playlist Analysis', '🗂️', 'wide')
 
 # --- DataFrame ---
-# Streaming history data
-df = pd.read_json('data_files/ListeningHistory.json', orient='index')
-# Playlist data
-plist = pd.read_json('data_files/AllPlaylists.json')
-
-# Normalizing the playlist data
-playlist = pd.json_normalize(data=plist['playlists'].to_list(),
-                             record_path='items',
-                             record_prefix='pl_',
-                             meta=['name'],
-                             meta_prefix='pl_')
-
-# Removing unnecessary rows and columns
-playlist.drop(columns=[
-    'pl_episode',
-    'pl_localTrack',
-    'pl_track',
-    'pl_track.trackUri',
-    'pl_episode.episodeName',
-    'pl_episode.showName',
-    'pl_episode.episodeUri'
-], inplace=True)
-playlist.dropna(inplace=True)
-
-# Removing unnecessary texts
-for col in ['pl_track.trackName', 'pl_track.albumName']:
-    playlist[col] = (playlist[col]
-                     .str.replace(r'\(.+|\[.+', '', regex=True)
-                     .str.replace(r' feat\. .*', '', regex=True)
-                     .str.replace(r' - .*', '', regex=True)
-                     .str.strip())
-
-# Adding some important columns
-df['endTime'] = pd.to_datetime(df['endTime'])
-
-# Joining the dfs for more analysis
-ij_df = pd.merge(df, playlist, how='inner', left_on='trackName',
-                 right_on='pl_track.trackName')
-oj_df = pd.merge(df, playlist, how='outer', left_on='trackName',
-                 right_on='pl_track.trackName')
-
+playlist = playlist_df()
+main_df = joined_df()
 
 # --- Global Variables ---
-playlist_name = sorted(playlist['pl_name'].unique())
+playlist_name = sorted(playlist['playlistName'].unique())
 selected = ''
+
+
+def get_name(data: str,
+             belongs_to: Literal['trackName', 'artistName', 'albumName', 'playlistName'],
+             to_get: Literal['trackName', 'artistName', 'albumName']):
+    return str(main_df[main_df[belongs_to] == data]
+               [to_get].value_counts().index.values[0])
 
 
 # --- sidebar section ---
@@ -61,7 +35,61 @@ with st.sidebar:
             'Select Playlist', options=playlist_name))
 
 # --- Hero Page ---
+if analysis_type == 'Overall':
+    st.title(':blue[All playlists analysis]')
+
+    _, col1, col2, col3, _ = st.columns([0.3, 1, 1, 1, 0.3])
+    # 1st Row
+    col1.metric('No.of **playlists made**', len(playlist_name))
+    col2.metric('No.of **songs** added',
+                playlist['trackName'].unique().shape[0])
+    col3.metric('No.of **artists** added',
+                playlist['artistName'].unique().shape[0])
+    # 2nd Row
+    col1.metric('Most played **playlist**',
+                x := main_df['playlistName'].value_counts().index.values[0],
+                get_name(x, 'playlistName', 'trackName'))
+    col2.metric('Most played **song**',
+                x := main_df['trackName'].value_counts().index.values[0],
+                get_name(x, 'trackName', 'artistName'))
+    col3.metric('Most played **artist**',
+                x := main_df['artistName'].value_counts().index.values[0],
+                get_name(x, 'artistName', 'trackName'))
+    # 3rd Row
+    col1.metric('Most played **album**',
+                x := main_df['albumName'].value_counts().index.values[0],
+                get_name(x, 'albumName', 'artistName'))
+
+    # 4th Row
+    if st.checkbox('Show graphs'):
+        col1, col2 = st.columns(2)
+        with col1:
+            fig, ax = plt.subplots()
+            (main_df['trackName'].value_counts()[:15]
+             .plot(kind='bar', ax=ax,
+                   title='Most played tracks in the playlist'))
+            st.pyplot(fig)
+        with col2:
+            fig, ax = plt.subplots()
+            (main_df['artistName'].value_counts()[:15]
+             .plot(kind='bar', ax=ax,
+                   title='Most played artists in the playlist'))
+            st.pyplot(fig)
+
+        _, col, _ = st.columns([1, 2, 1])
+        grp = main_df.groupby('trackName')
+        with col:
+            fig, ax = plt.subplots()
+            (grp['msPlayed'].sum()
+             .sort_values(ascending=False)[:8]
+             .plot(kind='pie', ax=ax,
+                        title='Minutes songs played',
+                        ylabel='', autopct='%1.0f%%'))
+            st.pyplot(fig)
+        '---'
+
+
 if selected != '':
-    selected_df = playlist.query('pl_name==@selected')
-    with st.expander(f'Analysis of **{selected} - {selected_df.shape[0]}**', True):
-        st.dataframe(selected_df)
+    selected_df = playlist.query('playlistName==@selected')
+    st.title(f'Analysis of **:red[{selected}] - {selected_df.shape[0]}**')
+    st.dataframe(selected_df)
