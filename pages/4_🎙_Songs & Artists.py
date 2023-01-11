@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import streamlit as st
 import numpy as np
 
-from manage_data_file import stream_df
+from utils.manage_data_file import stream_df
 
 
 # --- Page config ---
@@ -86,6 +86,13 @@ elif individual_analysis_btn == 'Artists':
              )
             st.pyplot(fig)
 
-    display_df = (df.query('artistName==@artist')
-                  .pivot_table('trackName', 'month', 'year', 'value_counts', fill_value=0))
-    st.dataframe(display_df, use_container_width=True)
+    # Select the month-year
+    month, year = str(st.selectbox('Select month-year',
+                                   (df.query('artistName==@artist')['endTime']
+                                    .dt.strftime(r'%B %Y').unique()))).split(' ')
+    year = int(year)
+    display_df = (df.query(f'artistName==@artist and month==@month and year==@year')
+                    .pivot_table('trackName', 'month', 'year', 'value_counts', fill_value=0)
+                    .droplevel(0)
+                  )
+    st.dataframe(display_df, 200)
