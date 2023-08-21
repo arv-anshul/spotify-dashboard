@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import streamlit as st
 import numpy as np
 
-from utils.manage_data_file import stream_df
+from src.database.manage import stream_df
 
 
 # --- Page config ---

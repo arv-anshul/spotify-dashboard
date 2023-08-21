@@ -4,7 +4,7 @@
 import streamlit as st
 import plotly.express as px
 
-from utils.utils import playlist_summary_df, album_summary_df
+from src.utils import playlist_summary_df, album_summary_df
 
 
 def playlists_premise():

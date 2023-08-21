@@ -7,7 +7,7 @@ Shows overview of the data with graphs and text after some EDA.
 import streamlit as st
 import pandas as pd
 
-from utils.manage_data_file import stream_df
+from src.database.manage import stream_df
 
 # --- Page config ---
 st.set_page_config('Spotify Data Analysis', ':music:', 'wide')

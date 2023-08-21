@@ -3,9 +3,9 @@ import streamlit as st
 from matplotlib import pyplot as plt
 import plotly.express as px
 
-from utils.manage_data_file import playlist_df, joined_df
-from utils.utils import get_name
-from utils.graphs import playlists_premise, albums_premise
+from src.database.manage import playlist_df, joined_df
+from src.utils import get_name
+from src.plots.graphs import playlists_premise, albums_premise
 
 
 # --- Page config ---
